@@ -1,0 +1,86 @@
+#include "protocol_pkg.h"
+
+Protocol_pkg_errors_t pkg_pack(Protocol_pkg_t* info, uint8_t* buffer){
+	if(!info || !buffer){
+        return PkgNullPointerError;
+    }
+
+    if(info->operation == 0){
+        return PkgOperationError;
+    }
+
+    if(info->status == 0){
+        return PkgStatusError;
+    }
+
+    if(info->transaction_id == 0){
+        return PkgTransactionIdError;
+    }
+
+    if(info->size == 0){
+        return PkgSizeError;
+    }
+
+    if(info->current_fragment == 0){
+        return PkgCurrentFragmentError;
+    }
+
+    if(info->total_fragments == 0){
+        return PkgTotalFragmentsError;
+    }
+
+    if(!info->data){
+        return PkgDataError;
+    }
+
+    int offset = 0;
+
+    memcpy(buffer,PKG_HEADER, PKG_HEADER_SIZE);
+    offset += PKG_HEADER_SIZE;
+
+    memcpy(&buffer[offset], info, (PKG_OPERATION_SIZE + PKG_STATUS_SIZE + PKG_TRANSACTION_ID_SIZE + PKG_CURRENT_FRAGMENT_SIZE + PKG_TOTAL_FRAGMENTS_SIZE + PKG_ERROR_SIZE));
+    offset += (PKG_OPERATION_SIZE + PKG_STATUS_SIZE + PKG_TRANSACTION_ID_SIZE + PKG_CURRENT_FRAGMENT_SIZE + PKG_TOTAL_FRAGMENTS_SIZE + PKG_ERROR_SIZE);
+
+    memcpy(&buffer[offset], info->data, PKG_DATA_SIZE(info->size));
+
+    printf("Buffer: %s \n", (char*)buffer);
+
+    return PkgOk;
+
+}
+
+Protocol_pkg_errors_t pkg_unpack(uint8_t* buffer, Protocol_pkg_t* info){
+    return PkgOk;
+}
+
+Protocol_pkg_errors_t pkg_show(Protocol_pkg_t* info){
+    if(!info){
+        return PkgNullPointerError;
+    }
+
+    printf("Operation: %d", info->operation);
+    printf("Status: %d", info->status);
+    printf("Transaction ID: %d", info->transaction_id);
+    printf("Size: %d", info->size);
+    printf("Data: %s", info->data);
+    printf("Check Sum: %d", info->check_sum);
+
+    return PkgOk;
+}
+
+uint8_t* pkg_search_header(uint8_t* buffer, size_t len){
+    if(!buffer || len == 0){
+        return NULL;
+    }
+
+    for(int i = 0; i < (len - PKG_HEADER_SIZE); i++){
+        if(buffer[i] != PKG_HEADER[0]){
+            continue;
+        }
+
+        if(memcmp(&buffer[i], PKG_HEADER, PKG_HEADER_SIZE) == 0){
+            return &buffer[i];
+        }
+    }
+    return NULL;
+}
