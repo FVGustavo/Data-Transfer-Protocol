@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+#define PKG_HEADER    ("_T_K_T_H\0")
+
+#define PKG_HEADER_SIZE       			(strlen(PKG_HEADER))
+#define PKG_OPERATION_SIZE    			(sizeof(uint16_t))
+#define PKG_STATUS_SIZE    				(sizeof(uint16_t))
+#define PKG_TRANSACTION_ID_SIZE    		(sizeof(uint32_t))
+#define PKG_SIZE_SIZE         			(sizeof(uint16_t))
+#define PKG_CURRENT_FRAGMENT_SIZE    	(sizeof(uint32_t))
+#define PKG_TOTAL_FRAGMENTS_SIZE    	(sizeof(uint32_t))
+#define PKG_ERROR_SIZE					(sizeof(uint16_t))
+#define PKG_DATA_SIZE(len)    			(len * sizeof(uint8_t))
+
+#define PKG_OPERATION_00				(0)
+#define PKG_OPERATION_01				(1)
+#define PKG_OPERATION_02				(2)
+
+#define PKG_STATUS_00					(0)
+#define PKG_STATUS_01					(1)
+#define PKG_STATUS_02					(2)
+#define PKG_STATUS_03					(3)
+
+#define PKG_TRANSACTION_ID_00			(0)
+#define PKG_TRANSACTION_ID_01			(1)
+#define PKG_TRANSACTION_ID_02			(2)
+
+typedef struct _protocol_pkg{
+	uint8_t header[10];
+	uint16_t operation;
+	uint16_t status;
+	uint32_t transaction_id;
+	uint16_t size;
+	uint32_t current_fragment;
+	uint32_t total_fragments;
+	uint16_t error;
+	uint8_t* data;
+	uint32_t check_sum;
+} Protocol_pkg_t;
+
+typedef enum _protocol_pkg_errors{
+    PkgOk = 0,
+    PkgNullPointerError,
+    PkgHeaderError,
+	PkgOperationError,
+    PkgStatusError,
+    PkgTransactionIdError,
+	PkgSizeError,
+	PkgCurrentFragmentError,
+	PkgTotalFragmentsError,
+	PkgDataError,
+    PkgCheckSumError,
+	PkgNonExpectedError,
+
+	PkgMAX
+} Protocol_pkg_errors_t;
+
+Protocol_pkg_errors_t pkg_pack(Protocol_pkg_t* info, uint8_t* buffer);
+
+Protocol_pkg_errors_t pkg_unpack(uint8_t* buffer, Protocol_pkg_t* info);
+
+Protocol_pkg_errors_t pkg_show(Protocol_pkg_t* info);
