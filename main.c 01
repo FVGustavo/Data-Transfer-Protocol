@@ -1,0 +1,22 @@
+#include <stdio.h>
+
+#include "protocol_package/protocol_pkg.h"
+
+int main(void){
+    Protocol_pkg_t pkg_01;
+    uint8_t* buffer = NULL;
+
+    pkg_01.operation = PKG_OPERATION_01;
+    pkg_01.status = PKG_STATUS_00;
+    pkg_01.transaction_id = PKG_TRANSACTION_ID_01;
+    pkg_01.size = PKG_DATA_SIZE(4);
+    pkg_01.current_fragment = PKG_CURRENT_FRAGMENT_SIZE;
+    pkg_01.total_fragments = PKG_TOTAL_FRAGMENTS_SIZE;
+    pkg_01.error = PkgOk;
+    pkg_01.data = (uint8_t*)("Yhwach");
+    pkg_01.check_sum = 999;
+
+    pkg_pack(&pkg_01, buffer);
+
+    return 0;
+}
